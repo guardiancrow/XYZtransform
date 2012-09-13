@@ -131,6 +131,10 @@ int main(int argc, char **argv)
 	InvertMatrix(matRGBtoXYZ, matXYZtoRGB);
 
 	cout << "sRGB(Illuminant D65)" << endl;
+	cout << "Red(0.64, 0.33)" << endl;
+	cout << "Green(0.30, 0.60)" << endl;
+	cout << "Blue(0.15, 0.06)" << endl;
+	cout << "White(0.3128, 0.3292)" << endl;
 	dump(matRGBtoXYZ, matXYZtoRGB);
 
 	//AdobeRGB
@@ -147,7 +151,30 @@ int main(int argc, char **argv)
 	InvertMatrix(matRGBtoXYZ, matXYZtoRGB);
 
 	cout << "AdobeRGB" << endl;
+	cout << "Red(0.64, 0.33)" << endl;
+	cout << "Green(0.21, 0.71)" << endl;
+	cout << "Blue(0.15, 0.06)" << endl;
+	cout << "White(0.3127, 0.3290)" << endl;
 	dump(matRGBtoXYZ, matXYZtoRGB);
 
+	//sRGBの色相を入れ替えたもの(R<->G)
+	red_x = 0.30;
+	red_y = 0.60;
+	green_x = 0.64;
+	green_y = 0.33;
+	blue_x = 0.15;
+	blue_y = 0.06;
+	white_x = 0.3128;
+	white_y = 0.3292;
+
+	CalcXYZMatrix(red_x, red_y, green_x, green_y, blue_x, blue_y, white_x, white_y, matRGBtoXYZ);
+	InvertMatrix(matRGBtoXYZ, matXYZtoRGB);
+
+	cout << "sRGB(D65) Red <-> Green" << endl;
+	cout << "Red(0.30, 0.60)" << endl;
+	cout << "Green(0.64, 0.33)" << endl;
+	cout << "Blue(0.15, 0.06)" << endl;
+	cout << "White(0.3128, 0.3292)" << endl;
+	dump(matRGBtoXYZ, matXYZtoRGB);
 	return 0;
 }
