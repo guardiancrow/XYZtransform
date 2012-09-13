@@ -76,12 +76,27 @@ int CalcXYZMatrix(double red_x, double red_y, double green_x, double green_y, do
 	mat3x3 = out_mat;
 }
 
+void transform_test(double R, double G, double B, matrix<double>&in_mat, matrix<double>&out_mat)
+{
+	double X, Y, Z;
+	X = Y = Z = 0.;
+	X = in_mat(0,0) * R + in_mat(0,1) * G + in_mat(0,2) * B;
+	Y = in_mat(1,0) * R + in_mat(1,1) * G + in_mat(1,2) * B;
+	Z = in_mat(2,0) * R + in_mat(2,1) * G + in_mat(2,2) * B;
+	R = out_mat(0,0) * X + out_mat(0,1) * Y + out_mat(0,2) * Z;
+	G = out_mat(1,0) * X + out_mat(1,1) * Y + out_mat(1,2) * Z;
+	B = out_mat(2,0) * X + out_mat(2,1) * Y + out_mat(2,2) * Z;
+
+	cout << "X = " << X << " : Y = " << Y << " : Z = " << Z << endl;
+	cout << "R = " << R << " : G = " << G << " : B = " << B << endl;
+	cout << endl;
+}
+
 void dump(matrix<double>&in_mat, matrix<double>&out_mat)
 {
 	cout << "X = " << in_mat(0,0) << " * Red + " << in_mat(0,1) << " * Green + " << in_mat(0,2) << " * Blue" << endl;
 	cout << "Y = " << in_mat(1,0) << " * Red + " << in_mat(1,1) << " * Green + " << in_mat(1,2) << " * Blue" << endl;
 	cout << "Z = " << in_mat(2,0) << " * Red + " << in_mat(2,1) << " * Green + " << in_mat(2,2) << " * Blue" << endl;
-	cout << endl;
 	cout << "Red = " << out_mat(0,0) << " * X + " << out_mat(0,1) << " * Y + " << out_mat(0,2) << " * Z" << endl;
 	cout << "Green = " << out_mat(1,0) << " * X + " << out_mat(1,1) << " * Y + " << out_mat(1,2) << " * Z" << endl;
 	cout << "Blue = " << out_mat(2,0) << " * X + " << out_mat(2,1) << " * Y + " << out_mat(2,2) << " * Z" << endl;
@@ -98,24 +113,23 @@ int main(int argc, char **argv)
 	double blue_y;
 	double white_x;
 	double white_y;
-	matrix<double> matRGBtoXYZ;
-	matrix<double> matXYZtoRGB;
 
-	matRGBtoXYZ = matrix<double>(3,3);
-	matXYZtoRGB = matrix<double>(3,3);
+	matrix<double> matSRGB;
+	matrix<double> matSRGBinv;
+	matrix<double> matAdobeRGB;
+	matrix<double> matAdobeRGBinv;
+	matrix<double> matCustom;
+	matrix<double> matCustominv;
 
-	/*
-	//sRGB(Illuminant D65)の場合、以下の値になっているはずです
-	matRGBtoXYZ(0,0) = .412424;
-	matRGBtoXYZ(0,1) = .357579;
-	matRGBtoXYZ(0,2) = .180464;
-	matRGBtoXYZ(1,0) = .212656;
-	matRGBtoXYZ(1,1) = .715158;
-	matRGBtoXYZ(1,2) = .0721856;
-	matRGBtoXYZ(2,0) = .0193324;
-	matRGBtoXYZ(2,1) = .119193;
-	matRGBtoXYZ(2,2) = .950444;
-	*/
+	double R,G,B;
+
+	matSRGB = matrix<double>(3,3);
+	matSRGBinv = matrix<double>(3,3);
+	matAdobeRGB = matrix<double>(3,3);
+	matAdobeRGBinv = matrix<double>(3,3);
+
+	matCustom = matrix<double>(3,3);
+	matCustominv = matrix<double>(3,3);
 
 	//sRGB (D65)
 	red_x = 0.64;
@@ -127,15 +141,16 @@ int main(int argc, char **argv)
 	white_x = 0.3128;
 	white_y = 0.3292;
 
-	CalcXYZMatrix(red_x, red_y, green_x, green_y, blue_x, blue_y, white_x, white_y, matRGBtoXYZ);
-	InvertMatrix(matRGBtoXYZ, matXYZtoRGB);
+	CalcXYZMatrix(red_x, red_y, green_x, green_y, blue_x, blue_y, white_x, white_y, matSRGB);
+	InvertMatrix(matSRGB, matSRGBinv);
 
+	cout << "---===---" << endl;
 	cout << "sRGB(Illuminant D65)" << endl;
 	cout << "Red(0.64, 0.33)" << endl;
 	cout << "Green(0.30, 0.60)" << endl;
 	cout << "Blue(0.15, 0.06)" << endl;
 	cout << "White(0.3128, 0.3292)" << endl;
-	dump(matRGBtoXYZ, matXYZtoRGB);
+	dump(matSRGB, matSRGBinv);
 
 	//AdobeRGB
 	red_x = 0.64;
@@ -147,15 +162,16 @@ int main(int argc, char **argv)
 	white_x = 0.3127;
 	white_y = 0.3290;
 
-	CalcXYZMatrix(red_x, red_y, green_x, green_y, blue_x, blue_y, white_x, white_y, matRGBtoXYZ);
-	InvertMatrix(matRGBtoXYZ, matXYZtoRGB);
+	CalcXYZMatrix(red_x, red_y, green_x, green_y, blue_x, blue_y, white_x, white_y, matAdobeRGB);
+	InvertMatrix(matAdobeRGB, matAdobeRGBinv);
 
+	cout << "---===---" << endl;
 	cout << "AdobeRGB" << endl;
 	cout << "Red(0.64, 0.33)" << endl;
 	cout << "Green(0.21, 0.71)" << endl;
 	cout << "Blue(0.15, 0.06)" << endl;
 	cout << "White(0.3127, 0.3290)" << endl;
-	dump(matRGBtoXYZ, matXYZtoRGB);
+	dump(matAdobeRGB, matAdobeRGBinv);
 
 	//sRGBの色相を入れ替えたもの(R<->G)
 	red_x = 0.30;
@@ -167,14 +183,37 @@ int main(int argc, char **argv)
 	white_x = 0.3128;
 	white_y = 0.3292;
 
-	CalcXYZMatrix(red_x, red_y, green_x, green_y, blue_x, blue_y, white_x, white_y, matRGBtoXYZ);
-	InvertMatrix(matRGBtoXYZ, matXYZtoRGB);
+	CalcXYZMatrix(red_x, red_y, green_x, green_y, blue_x, blue_y, white_x, white_y, matCustom);
+	InvertMatrix(matCustom, matCustominv);
 
+	cout << "---===---" << endl;
 	cout << "sRGB(D65) Red <-> Green" << endl;
 	cout << "Red(0.30, 0.60)" << endl;
 	cout << "Green(0.64, 0.33)" << endl;
 	cout << "Blue(0.15, 0.06)" << endl;
 	cout << "White(0.3128, 0.3292)" << endl;
-	dump(matRGBtoXYZ, matXYZtoRGB);
+	dump(matCustom, matCustominv);
+
+	//変換テスト(1) sRGB -> Adobe RGB
+	//(R,G,B) = (0.0,0.0,0.0)
+	R = G = B = 0.;
+	cout << "---===---" << endl;
+	cout << "sRGB -> AdobeRGB : (R,G,B) = (0.0,0.0,0.0)" << endl;
+	transform_test(R, G, B, matSRGB, matAdobeRGBinv);
+
+	//(R,G,B) = (1.0,1.0,1.0)
+	R = G = B = 1.;
+	cout << "---===---" << endl;
+	cout << "sRGB -> AdobeRGB : (R,G,B) = (1.0,1.0,1.0)" << endl;
+	transform_test(R, G, B, matSRGB, matAdobeRGBinv);
+
+	//変換テスト(2) sRGB -> 入れ替えたもの
+	R = 0.25;
+	G = 0.5;
+	B = 0.75;
+	cout << "---===---" << endl;
+	cout << "sRGB -> RGchange : (R,G,B) = (0.25,0,5,0.75)" << endl;
+	transform_test(R, G, B, matSRGB, matCustominv);
+
 	return 0;
 }
